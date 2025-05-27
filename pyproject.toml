@@ -1,0 +1,13 @@
+[project]
+name = "zhengyu_trade"
+version = "1.0.0"
+description = "基于Flask搭建的个人交易分析监控系统"
+dependencies = [
+    "numpy",
+    "pandas",
+    "tqsdk",
+]
+
+[build-system]
+requires = ["flit_core<4"]
+build-backend = "flit_core.buildapi"

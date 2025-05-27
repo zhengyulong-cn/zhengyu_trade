@@ -1,0 +1,141 @@
+<script setup lang="ts">
+import { onMounted, ref } from "vue";
+import KLineCenter from "@/components/klineChart/KLineCenter.vue";
+import { getFutureDataApi } from "@/apis/modules";
+import type { IKLineData } from "../klineChart/interface";
+
+const loading = ref(false);
+
+// 股票/期货代码选择的值
+const selectedCode = ref("");
+// 时间周期选择的值，默认设置为15分钟
+const selectedTime = ref(15);
+
+const codeOptions = ref([
+  {
+    value: "CZCE.PR507",
+    label: "瓶片 PR2507",
+  },
+  {
+    value: "DCE.i2509",
+    label: "铁矿石 i2509",
+  },
+]);
+const timeOptions = ref([
+  {
+    value: 3,
+    label: "3M",
+  },
+  {
+    value: 15,
+    label: "15M",
+  },
+  {
+    value: 60,
+    label: "1H",
+  },
+]);
+
+const klinesData = ref<IKLineData>({
+  symbol: "",
+  time: 15,
+  klines: [],
+});
+
+const getKLineData = async (symbol: string, time: number) => {
+  loading.value = true;
+  const res = await getFutureDataApi({
+    symbol: symbol,
+    minutes: time,
+  });
+  const { data, success } = res;
+  if (success) {
+    klinesData.value = data as IKLineData;
+  }
+  loading.value = false;
+};
+
+const onSelectCode = (value: string) => {
+  console.log("onSelectCode", value);
+  getKLineData(value, selectedTime.value);
+};
+
+const onSelectTime = (value: number) => {
+  console.log("onSelectTime", value);
+  getKLineData(selectedCode.value, value);
+};
+
+onMounted(() => {
+  getKLineData("CZCE.PR507", 15);
+});
+</script>
+
+<template>
+  <div class="market-quotes-box">
+    <header class="market-quotes-header">
+      <el-select
+        v-model="selectedCode"
+        placeholder="请输入股票代码或期货代码"
+        class="market-quotes-code-select"
+        @change="onSelectCode"
+      >
+        <el-option
+          v-for="item in codeOptions"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        ></el-option>
+      </el-select>
+      <el-select
+        v-model="selectedTime"
+        placeholder="请选择时间周期"
+        class="market-quotes-time-select"
+        @change="onSelectTime"
+      >
+        <el-option
+          v-for="item in timeOptions"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        ></el-option>
+      </el-select>
+    </header>
+    <section class="market-quotes-chart-container" v-loading="loading">
+      <KLineCenter :data="klinesData" />
+    </section>
+  </div>
+</template>
+
+<style scoped lang="less">
+.market-quotes-box {
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  height: calc(100% - 1rem);
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  position: relative;
+}
+.market-quotes-header {
+  display: flex;
+  justify-content: flex-start;
+  column-gap: 0.5rem;
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  right: 0.5rem;
+  border-radius: 0.5rem;
+  opacity: 0.5;
+  z-index: 999;
+}
+.market-quotes-code-select {
+  max-width: 14rem;
+}
+.market-quotes-time-select {
+  max-width: 10rem;
+}
+.market-quotes-chart-container {
+  background-color: rgba(201, 12, 12, 0.2);
+  height: 100%;
+}
+</style>
