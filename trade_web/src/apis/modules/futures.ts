@@ -4,5 +4,5 @@ export const getFutureDataApi = (params: {
   symbol: string;
   minutes: number;
 }) => {
-  return axios.get("/api/futures/klines", params);
+  return axios.get("/api/futures/market_conditions", params);
 };

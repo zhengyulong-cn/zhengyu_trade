@@ -3,12 +3,12 @@ import type { RouteRecordRaw } from "vue-router";
 export const RouterModules: RouteRecordRaw[] = [
   {
     path: "/",
-    redirect: "/market_quotes",
+    redirect: "/market_conditions",
   },
   {
-    path: "/market_quotes",
-    name: "MarketQuotes",
-    component: () => import("@/pages/MarketQuotesPage.vue"),
+    path: "/market_conditions",
+    name: "MarketConditions",
+    component: () => import("@/pages/MarketConditionsPage.vue"),
     meta: {
       icon: "TrendCharts",
       title: "市场行情",

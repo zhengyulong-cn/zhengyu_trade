@@ -2,9 +2,12 @@
 import type { IKLineData } from "./interface";
 import {
   createChart,
+  createSeriesMarkers,
   CandlestickSeries,
+  type SeriesMarker,
   type IChartApi,
   type ISeriesApi,
+  type ISeriesMarkersPluginApi,
 } from "lightweight-charts";
 import { onMounted, onUnmounted, ref, watch, type PropType } from "vue";
 import { candlestickSeriesOptions, type ICommonChartOptions } from "./config";
@@ -27,6 +30,7 @@ const props = defineProps({
 const chartContainer = ref();
 let chart: IChartApi | null = null;
 let kSeries: ISeriesApi<"Candlestick"> | null = null;
+let seriesMarkers: ISeriesMarkersPluginApi<any> | null = null;
 onMounted(() => {
   chart = createChart(chartContainer.value, {
     ...props.commonChartOptions,
@@ -40,6 +44,8 @@ onMounted(() => {
   // // 时间刻度自适应
   kSeries = chart.addSeries(CandlestickSeries, candlestickSeriesOptions.value);
   kSeries.setData([]);
+  seriesMarkers = createSeriesMarkers(kSeries, []);
+
   chart.timeScale().fitContent();
   if (props.autosize) {
     window.addEventListener("resize", resizeHandler);
@@ -55,18 +61,37 @@ onUnmounted(() => {
   }
   window.removeEventListener("resize", resizeHandler);
 });
-const fitContent = () => {
-  if (!chart) return;
-  chart.timeScale().fitContent();
-};
-defineExpose({
-  getChart: () => chart,
-  getKSeries: () => kSeries,
-});
 const resizeHandler = () => {
   if (!chart || !chartContainer.value) return;
   const dimensions = chartContainer.value.getBoundingClientRect();
   chart.resize(dimensions.width, dimensions.height);
+};
+
+const getFenxingMarkerList = (fenxingList: any[]) => {
+  const markers: SeriesMarker<any>[] = [];
+  for (const item of fenxingList) {
+    console.log(item);
+    if (item.type === "top") {
+      markers.push({
+        time: item.time,
+        price: item.close,
+        position: "aboveBar",
+        color: "#f68410",
+        shape: "circle",
+        text: "顶",
+      });
+    } else if (item.type === "bottom") {
+      markers.push({
+        time: item.time,
+        price: item.close,
+        position: "belowBar",
+        color: "#f68410",
+        shape: "circle",
+        text: "底",
+      });
+    }
+  }
+  return markers;
 };
 
 watch(
@@ -74,6 +99,8 @@ watch(
   (newData: any) => {
     if (!kSeries) return;
     kSeries.setData(newData.klines);
+
+    seriesMarkers?.setMarkers(getFenxingMarkerList(newData.fenxingList));
   }
 );
 watch(

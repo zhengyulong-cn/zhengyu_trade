@@ -13,6 +13,10 @@ const selectedTime = ref(15);
 
 const codeOptions = ref([
   {
+    value: "GFEX.lc2509",
+    label: "碳酸锂 lc2509",
+  },
+  {
     value: "CZCE.PR507",
     label: "瓶片 PR2507",
   },
@@ -66,17 +70,17 @@ const onSelectTime = (value: number) => {
 };
 
 onMounted(() => {
-  getKLineData("CZCE.PR507", 15);
+  getKLineData("GFEX.lc2509", 15);
 });
 </script>
 
 <template>
-  <div class="market-quotes-box">
-    <header class="market-quotes-header">
+  <div class="market-conditions-box">
+    <header class="market-conditions-header">
       <el-select
         v-model="selectedCode"
         placeholder="请输入股票代码或期货代码"
-        class="market-quotes-code-select"
+        class="market-conditions-code-select"
         @change="onSelectCode"
       >
         <el-option
@@ -89,7 +93,7 @@ onMounted(() => {
       <el-select
         v-model="selectedTime"
         placeholder="请选择时间周期"
-        class="market-quotes-time-select"
+        class="market-conditions-time-select"
         @change="onSelectTime"
       >
         <el-option
@@ -100,14 +104,14 @@ onMounted(() => {
         ></el-option>
       </el-select>
     </header>
-    <section class="market-quotes-chart-container" v-loading="loading">
+    <section class="market-conditions-chart-container" v-loading="loading">
       <KLineCenter :data="klinesData" />
     </section>
   </div>
 </template>
 
 <style scoped lang="less">
-.market-quotes-box {
+.market-conditions-box {
   display: flex;
   flex-direction: column;
   background-color: white;
@@ -116,7 +120,7 @@ onMounted(() => {
   border-radius: 0.5rem;
   position: relative;
 }
-.market-quotes-header {
+.market-conditions-header {
   display: flex;
   justify-content: flex-start;
   column-gap: 0.5rem;
@@ -128,13 +132,13 @@ onMounted(() => {
   opacity: 0.5;
   z-index: 999;
 }
-.market-quotes-code-select {
+.market-conditions-code-select {
   max-width: 14rem;
 }
-.market-quotes-time-select {
+.market-conditions-time-select {
   max-width: 10rem;
 }
-.market-quotes-chart-container {
+.market-conditions-chart-container {
   background-color: rgba(201, 12, 12, 0.2);
   height: 100%;
 }
