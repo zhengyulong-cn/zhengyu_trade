@@ -4,13 +4,23 @@ import {
   createChart,
   createSeriesMarkers,
   CandlestickSeries,
-  type SeriesMarker,
   type IChartApi,
   type ISeriesApi,
   type ISeriesMarkersPluginApi,
+  LineSeries,
+  LineStyle,
 } from "lightweight-charts";
 import { onMounted, onUnmounted, ref, watch, type PropType } from "vue";
-import { candlestickSeriesOptions, type ICommonChartOptions } from "./config";
+import {
+  candlestickSeriesOptions,
+  lineSeriesOptions,
+  type ICommonChartOptions,
+} from "./config";
+import {
+  getFenxingMarkerList,
+  getSegmentsLine,
+  getLastSegmentLine,
+} from "./utils";
 
 const props = defineProps({
   data: {
@@ -30,6 +40,8 @@ const props = defineProps({
 const chartContainer = ref();
 let chart: IChartApi | null = null;
 let kSeries: ISeriesApi<"Candlestick"> | null = null;
+let lineSerise: ISeriesApi<"Line"> | null = null;
+let lastLineSerise: ISeriesApi<"Line"> | null = null;
 let seriesMarkers: ISeriesMarkersPluginApi<any> | null = null;
 onMounted(() => {
   chart = createChart(chartContainer.value, {
@@ -41,12 +53,24 @@ onMounted(() => {
   //     visible: false,
   //   },
   // });
-  // // 时间刻度自适应
   kSeries = chart.addSeries(CandlestickSeries, candlestickSeriesOptions.value);
   kSeries.setData([]);
+  lineSerise = chart.addSeries(LineSeries, lineSeriesOptions.value);
+  lineSerise.setData([]);
+  lastLineSerise = chart.addSeries(LineSeries, {
+    ...lineSeriesOptions.value,
+    lineStyle: LineStyle.Dashed,
+  });
+  lastLineSerise.setData([]);
+
   seriesMarkers = createSeriesMarkers(kSeries, []);
 
   chart.timeScale().fitContent();
+  chart.subscribeCrosshairMove((param) => {
+    const series = param.seriesData.get(kSeries);
+    if (!series) return;
+    console.table(series);
+  });
   if (props.autosize) {
     window.addEventListener("resize", resizeHandler);
   }
@@ -59,6 +83,9 @@ onUnmounted(() => {
   if (kSeries) {
     kSeries = null;
   }
+  if (lineSerise) {
+    lineSerise = null;
+  }
   window.removeEventListener("resize", resizeHandler);
 });
 const resizeHandler = () => {
@@ -67,40 +94,20 @@ const resizeHandler = () => {
   chart.resize(dimensions.width, dimensions.height);
 };
 
-const getFenxingMarkerList = (fenxingList: any[]) => {
-  const markers: SeriesMarker<any>[] = [];
-  for (const item of fenxingList) {
-    console.log(item);
-    if (item.type === "top") {
-      markers.push({
-        time: item.time,
-        price: item.close,
-        position: "aboveBar",
-        color: "#f68410",
-        shape: "circle",
-        text: "顶",
-      });
-    } else if (item.type === "bottom") {
-      markers.push({
-        time: item.time,
-        price: item.close,
-        position: "belowBar",
-        color: "#f68410",
-        shape: "circle",
-        text: "底",
-      });
-    }
-  }
-  return markers;
-};
-
 watch(
   () => props.data,
   (newData: any) => {
-    if (!kSeries) return;
+    if (!kSeries || !lineSerise || !lastLineSerise) return;
     kSeries.setData(newData.klines);
+    console.log(newData.segments);
 
-    seriesMarkers?.setMarkers(getFenxingMarkerList(newData.fenxingList));
+    const newLineData = getSegmentsLine(newData.segments);
+    lineSerise.setData(newLineData);
+
+    const lastLineData = getLastSegmentLine(newData.segments);
+    lastLineSerise.setData(lastLineData);
+
+    // seriesMarkers?.setMarkers(getFenxingMarkerList(newData.fenxingList));
   }
 );
 watch(

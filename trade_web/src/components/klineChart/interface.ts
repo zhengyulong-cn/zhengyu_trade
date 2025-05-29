@@ -28,3 +28,22 @@ export interface IKLineData {
   time: number;
   klines: IKLineItem[];
 }
+
+export interface IFenxing {
+  id: number;
+  time: number;
+  type: "top" | "bottom";
+  price: number;
+}
+
+export enum Direction {
+  Up = "Up",
+  Down = "Down",
+}
+
+export interface ISegment {
+  startFenxing: IFenxing;
+  endFenxing: IFenxing;
+  direction: Direction;
+  building: boolean;
+}

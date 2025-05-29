@@ -13,16 +13,28 @@ const selectedTime = ref(15);
 
 const codeOptions = ref([
   {
-    value: "GFEX.lc2509",
-    label: "碳酸锂 lc2509",
+    value: "GFEX.lc2508",
+    label: "碳酸锂 lc2508",
   },
   {
     value: "CZCE.PR507",
     label: "瓶片 PR2507",
   },
   {
+    value: "CZCE.SH509",
+    label: "烧碱 SH2509",
+  },
+  {
     value: "DCE.i2509",
     label: "铁矿石 i2509",
+  },
+  {
+    value: "DCE.m2509",
+    label: "豆粕 m2507",
+  },
+  {
+    value: "CZCE.RM509",
+    label: "菜粕 RM2509",
   },
 ]);
 const timeOptions = ref([
@@ -70,7 +82,7 @@ const onSelectTime = (value: number) => {
 };
 
 onMounted(() => {
-  getKLineData("GFEX.lc2509", 15);
+  getKLineData("GFEX.lc2508", 15);
 });
 </script>
 

@@ -20,6 +20,6 @@ def transKline2Standard(sourceKline: pd.DataFrame, durationMinutes: int) -> List
 def getFutureKline(symbol: str, durationMinutes: int):
     api = getTqApi()
     sourceKline: pd.DataFrame = api.get_kline_serial(
-        symbol=symbol, data_length=500, duration_seconds=durationMinutes * 60
+        symbol=symbol, data_length=260, duration_seconds=durationMinutes * 60
     )
     return transKline2Standard(sourceKline, durationMinutes)

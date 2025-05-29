@@ -3,6 +3,7 @@ from trade_backend.futures.fetch_data import getFutureKline
 from trade_backend.analysis_core.technical_analysis.base_build import (
     removeInclude,
     fenxingBuild,
+    baseSegmentBuild,
 )
 
 futures_bp = Blueprint("futures", __name__)
@@ -15,9 +16,11 @@ def getMarketConditionsApi():
     futureKline = getFutureKline(symbol, minutes)
     futureKline = removeInclude(futureKline)
     fenxingList = fenxingBuild(futureKline)
+    segments = baseSegmentBuild(futureKline, fenxingList)
     return {
         "symbol": symbol,
         "minutes": minutes,
         "klines": futureKline,
         "fenxingList": fenxingList,
+        "segments": segments,
     }
