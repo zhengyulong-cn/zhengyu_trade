@@ -1,7 +1,7 @@
 import pandas as pd
 from tqsdk.ta import MA
 from trade_backend.analysis_core.technical_analysis.public_type import SegmentPoint
-from trade_backend.enum import Direction, FenxingType, SegmentLevel
+from trade_backend.enum import Direction, FenxingType, MALevel
 
 
 def getDirectionOnKline(ma1, ma2):
@@ -14,9 +14,9 @@ def getDirectionOnKline(ma1, ma2):
 
 
 def buildDirectionOnKlines(klines):
-    ma_a0 = MA(klines, SegmentLevel.A0.value)
-    ma_a1 = MA(klines, SegmentLevel.A1.value)
-    ma_a2 = MA(klines, SegmentLevel.A2.value)
+    ma_a0 = MA(klines, MALevel.A0.value)
+    ma_a1 = MA(klines, MALevel.A1.value)
+    ma_a2 = MA(klines, MALevel.A2.value)
 
     direction_a0 = [
         getDirectionOnKline(ma_a0.iloc[i]["ma"], ma_a1.iloc[i]["ma"])

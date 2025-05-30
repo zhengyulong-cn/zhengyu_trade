@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class SegmentLevel(Enum):
+class MALevel(Enum):
     A0 = 5
     A1 = 20
     A2 = 80
