@@ -3,6 +3,7 @@ import { onMounted, ref } from "vue";
 import KLineCenter from "@/components/klineChart/KLineCenter.vue";
 import { getFutureDataApi } from "@/apis/modules";
 import type { IKLineData } from "../klineChart/interface";
+import { ElMessage } from "element-plus";
 
 const loading = ref(false);
 
@@ -15,6 +16,14 @@ const codeOptions = ref([
   {
     value: "GFEX.lc2508",
     label: "碳酸锂 lc2508",
+  },
+  {
+    value: "DCE.p2507",
+    label: "棕榈油 p2507",
+  },
+  {
+    value: "DCE.jd2507",
+    label: "鸡蛋 jd2507",
   },
   {
     value: "CZCE.PR507",
@@ -56,19 +65,28 @@ const klinesData = ref<IKLineData>({
   symbol: "",
   time: 15,
   klines: [],
+  segments: {
+    A0: [],
+    A1: [],
+  },
 });
 
 const getKLineData = async (symbol: string, time: number) => {
   loading.value = true;
-  const res = await getFutureDataApi({
+  getFutureDataApi({
     symbol: symbol,
     minutes: time,
-  });
-  const { data, success } = res;
-  if (success) {
-    klinesData.value = data as IKLineData;
-  }
-  loading.value = false;
+  })
+    .then((res) => {
+      console.log(res);
+      klinesData.value = res as IKLineData;
+    })
+    .catch((err) => {
+      ElMessage.error(err);
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 };
 
 const onSelectCode = (value: string) => {

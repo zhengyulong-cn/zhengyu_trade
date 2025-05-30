@@ -2,11 +2,9 @@
 import type { IKLineData } from "./interface";
 import {
   createChart,
-  createSeriesMarkers,
   CandlestickSeries,
   type IChartApi,
   type ISeriesApi,
-  type ISeriesMarkersPluginApi,
   LineSeries,
   LineStyle,
 } from "lightweight-charts";
@@ -16,11 +14,7 @@ import {
   lineSeriesOptions,
   type ICommonChartOptions,
 } from "./config";
-import {
-  getFenxingMarkerList,
-  getSegmentsLine,
-  getLastSegmentLine,
-} from "./utils";
+import { getSegmentsLine } from "./utils";
 
 const props = defineProps({
   data: {
@@ -40,9 +34,9 @@ const props = defineProps({
 const chartContainer = ref();
 let chart: IChartApi | null = null;
 let kSeries: ISeriesApi<"Candlestick"> | null = null;
-let lineSerise: ISeriesApi<"Line"> | null = null;
-let lastLineSerise: ISeriesApi<"Line"> | null = null;
-let seriesMarkers: ISeriesMarkersPluginApi<any> | null = null;
+let a0lineSerise: ISeriesApi<"Line"> | null = null;
+let lastA0LineSerise: ISeriesApi<"Line"> | null = null;
+let a1lineSerise: ISeriesApi<"Line"> | null = null;
 onMounted(() => {
   chart = createChart(chartContainer.value, {
     ...props.commonChartOptions,
@@ -55,22 +49,24 @@ onMounted(() => {
   // });
   kSeries = chart.addSeries(CandlestickSeries, candlestickSeriesOptions.value);
   kSeries.setData([]);
-  lineSerise = chart.addSeries(LineSeries, lineSeriesOptions.value);
-  lineSerise.setData([]);
-  lastLineSerise = chart.addSeries(LineSeries, {
+  a0lineSerise = chart.addSeries(LineSeries, lineSeriesOptions.value);
+  a0lineSerise.setData([]);
+  lastA0LineSerise = chart.addSeries(LineSeries, {
     ...lineSeriesOptions.value,
     lineStyle: LineStyle.Dashed,
   });
-  lastLineSerise.setData([]);
-
-  seriesMarkers = createSeriesMarkers(kSeries, []);
+  lastA0LineSerise.setData([]);
+  a1lineSerise = chart.addSeries(LineSeries, {
+    ...lineSeriesOptions.value,
+    color: "orange",
+  });
+  a1lineSerise.setData([]);
 
   chart.timeScale().fitContent();
-  chart.subscribeCrosshairMove((param) => {
-    const series = param.seriesData.get(kSeries);
-    if (!series) return;
-    console.table(series);
-  });
+  // chart.subscribeCrosshairMove((param) => {
+  //   const series = param.seriesData.get(kSeries);
+  //   if (!series) return;
+  // });
   if (props.autosize) {
     window.addEventListener("resize", resizeHandler);
   }
@@ -83,8 +79,14 @@ onUnmounted(() => {
   if (kSeries) {
     kSeries = null;
   }
-  if (lineSerise) {
-    lineSerise = null;
+  if (a0lineSerise) {
+    a0lineSerise = null;
+  }
+  if (lastA0LineSerise) {
+    a0lineSerise = null;
+  }
+  if (a1lineSerise) {
+    a1lineSerise = null;
   }
   window.removeEventListener("resize", resizeHandler);
 });
@@ -96,18 +98,23 @@ const resizeHandler = () => {
 
 watch(
   () => props.data,
-  (newData: any) => {
-    if (!kSeries || !lineSerise || !lastLineSerise) return;
+  (newData: IKLineData) => {
+    if (!kSeries || !a0lineSerise || !lastA0LineSerise || !a1lineSerise) return;
     kSeries.setData(newData.klines);
-    console.log(newData.segments);
 
-    const newLineData = getSegmentsLine(newData.segments);
-    lineSerise.setData(newLineData);
+    const a0LineData = getSegmentsLine(newData.segments.A0).slice(
+      0,
+      newData.segments.A0.length - 1
+    );
+    a0lineSerise.setData(a0LineData);
 
-    const lastLineData = getLastSegmentLine(newData.segments);
-    lastLineSerise.setData(lastLineData);
+    const lastLineData = getSegmentsLine(newData.segments.A0).slice(
+      newData.segments.A0.length - 2
+    );
+    lastA0LineSerise.setData(lastLineData);
 
-    // seriesMarkers?.setMarkers(getFenxingMarkerList(newData.fenxingList));
+    const a1LineData = getSegmentsLine(newData.segments.A1);
+    a1lineSerise.setData(a1LineData);
   }
 );
 watch(

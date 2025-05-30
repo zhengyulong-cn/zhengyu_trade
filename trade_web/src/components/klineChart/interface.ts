@@ -1,10 +1,12 @@
+import type { Time } from "lightweight-charts";
+
 export interface IKLineItem {
   /** K线id */
   id: number;
   /** 股票或期货代码 */
   symbol: string;
   /** 时间戳 */
-  time: number;
+  time: Time;
   /** 时间周期，秒 */
   duration: number;
   /** 收盘价 */
@@ -27,13 +29,7 @@ export interface IKLineData {
   symbol: string;
   time: number;
   klines: IKLineItem[];
-}
-
-export interface IFenxing {
-  id: number;
-  time: number;
-  type: "top" | "bottom";
-  price: number;
+  segments: Record<"A0" | "A1", ISegmentPoint[]>;
 }
 
 export enum Direction {
@@ -41,9 +37,14 @@ export enum Direction {
   Down = "Down",
 }
 
-export interface ISegment {
-  startFenxing: IFenxing;
-  endFenxing: IFenxing;
-  direction: Direction;
-  building: boolean;
+export enum FenxingType {
+  Top = "Top",
+  Bottom = "Bottom",
+}
+
+export interface ISegmentPoint {
+  id: number;
+  type: FenxingType;
+  price: number;
+  time: Time;
 }

@@ -1,29 +1,15 @@
 import type { SeriesMarker, Time } from "lightweight-charts";
-import type { ISegment } from "./interface";
+import type { ISegmentPoint } from "./interface";
 
 export const getSegmentsLine = (
-  segments: ISegment[]
+  segments: ISegmentPoint[]
 ): Array<{ time: Time; value: number }> => {
-  return segments.map((segment) => {
+  return segments.map((segmentPoint) => {
     return {
-      time: segment.startFenxing.time as Time,
-      value: segment.startFenxing.price,
+      value: segmentPoint.price,
+      time: segmentPoint.time,
     };
   });
-};
-
-export const getLastSegmentLine = (segments: ISegment[]) => {
-  const lastSegment = segments[segments.length - 1];
-  return [
-    {
-      time: lastSegment.startFenxing.time as Time,
-      value: lastSegment.startFenxing.price,
-    },
-    {
-      time: lastSegment.endFenxing.time as Time,
-      value: lastSegment.endFenxing.price,
-    },
-  ];
 };
 
 export const getFenxingMarkerList = (fenxingList: any[]) => {

@@ -1,41 +1,5 @@
 from trade_backend.enum import Direction
-
-
-class Fenxing:
-    def __init__(self, id: int, time: int, type: str, price: float):
-        self.id = id
-        self.time = time
-        self.type = type
-        # 顶分型时候为最高价，底分型时候为最低价
-        self.price = price
-
-    def __eq__(self, other: object) -> bool:
-        return self.id == other.id
-
-    def toDict(self):
-        return self.__dict__
-
-
-class Segment:
-    def __init__(
-        self,
-        startFenxing: Fenxing,
-        endFenxing: Fenxing,
-        direction: Direction,
-        building: bool,
-    ):
-        self.startFenxing = startFenxing
-        self.endFenxing = endFenxing
-        self.direction = direction
-        self.building = building
-
-    def toDict(self):
-        return {
-            "startFenxing": self.startFenxing,
-            "endFenxing": self.endFenxing,
-            "direction": self.direction.value,
-            "building": self.building,
-        }
+from trade_backend.analysis_core.technical_analysis.public_type import Fenxing, Segment
 
 
 def removeInclude(klines):
@@ -186,7 +150,6 @@ def findNextFenxing(
     for i in range(currentFenxingIndex + 1, len(fenxingList)):
         comparedFenxing = fenxingList[i]
         comparedFenxingType = comparedFenxing["type"]
-
         if (currentFenxingType == "top" and comparedFenxingType == "bottom") or (
             currentFenxingType == "bottom" and comparedFenxingType == "top"
         ):
@@ -198,12 +161,12 @@ def findNextFenxing(
             )
             segmentBackTracker = checkSegmentBackTracker(comparedFenxing, backTracker)
             # 让一些次低点也能符合要求
-            # if (
-            #     len(backTracker) > 1
-            #     and segmentFenxingLenIsOk
-            #     and not segmentIncludeIsOk
-            # ):
-            #     segmentIncludeIsOk = True
+            if (
+                len(backTracker) > 1
+                and segmentFenxingLenIsOk
+                and not segmentIncludeIsOk
+            ):
+                segmentIncludeIsOk = True
             if segmentFenxingLenIsOk and segmentIncludeIsOk and not segmentBackTracker:
                 nextFenxing = comparedFenxing
                 break
