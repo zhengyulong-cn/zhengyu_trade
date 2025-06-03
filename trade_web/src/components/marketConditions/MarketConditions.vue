@@ -26,8 +26,8 @@ const codeOptions = ref([
     label: "鸡蛋 jd2507",
   },
   {
-    value: "CZCE.PR507",
-    label: "瓶片 PR2507",
+    value: "SHFE.sp2507",
+    label: "纸浆 sp2507",
   },
   {
     value: "CZCE.SH509",

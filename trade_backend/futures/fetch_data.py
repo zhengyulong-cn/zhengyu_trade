@@ -10,6 +10,6 @@ def getTqApi():
 def getFutureKline(symbol: str, durationMinutes: int):
     api = getTqApi()
     sourceKline: pd.DataFrame = api.get_kline_serial(
-        symbol=symbol, data_length=500, duration_seconds=durationMinutes * 60
+        symbol=symbol, data_length=700, duration_seconds=durationMinutes * 60
     )
     return sourceKline

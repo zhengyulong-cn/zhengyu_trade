@@ -58,3 +58,15 @@ class SegmentPoint:
             "price": self.price,
             "datetime": self.datetime,
         }
+
+
+class SequenceProperty:
+    def __init__(
+        self,
+        startSegmentPoint: SegmentPoint,
+        endSegmentPoint: SegmentPoint,
+        direction: Direction,
+    ):
+        self.startSegmentPoint = startSegmentPoint
+        self.endSegmentPoint = endSegmentPoint
+        self.direction = direction
