@@ -8,26 +8,30 @@ import { ElMessage } from "element-plus";
 const loading = ref(false);
 
 // 股票/期货代码选择的值
-const selectedCode = ref("");
+const selectedCode = ref("GFEX.lc2509");
 // 时间周期选择的值，默认设置为15分钟
-const selectedTime = ref(15);
+const selectedTime = ref(3);
 
 const codeOptions = ref([
   {
-    value: "GFEX.lc2508",
-    label: "碳酸锂 lc2508",
+    value: "GFEX.lc2509",
+    label: "碳酸锂 lc2509",
   },
   {
-    value: "DCE.p2507",
-    label: "棕榈油 p2507",
+    value: "DCE.jm2509",
+    label: "焦煤 jm2509",
+  },
+  {
+    value: "DCE.p2509",
+    label: "棕榈油 p2509",
   },
   {
     value: "DCE.jd2507",
     label: "鸡蛋 jd2507",
   },
   {
-    value: "SHFE.sp2507",
-    label: "纸浆 sp2507",
+    value: "SHFE.sp2509",
+    label: "纸浆 sp2509",
   },
   {
     value: "CZCE.SH509",
@@ -48,22 +52,22 @@ const codeOptions = ref([
 ]);
 const timeOptions = ref([
   {
-    value: 3,
-    label: "3M",
+    value: 5,
+    label: "5M",
   },
   {
-    value: 15,
-    label: "15M",
+    value: 30,
+    label: "30M",
   },
   {
-    value: 60,
-    label: "1H",
+    value: 120,
+    label: "2H",
   },
 ]);
 
 const klinesData = ref<IKLineData>({
   symbol: "",
-  time: 15,
+  time: 3,
   klines: [],
   segments: {
     A0: [],
@@ -100,7 +104,7 @@ const onSelectTime = (value: number) => {
 };
 
 onMounted(() => {
-  getKLineData("GFEX.lc2508", 15);
+  getKLineData("GFEX.lc2509", 3);
 });
 </script>
 

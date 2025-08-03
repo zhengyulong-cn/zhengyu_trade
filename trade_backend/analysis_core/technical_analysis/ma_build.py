@@ -3,6 +3,8 @@ from tqsdk.ta import MA
 from trade_backend.analysis_core.technical_analysis.public_type import SegmentPoint
 from trade_backend.enum import Direction, FenxingType, MALevel
 
+PRICE_AMPLITUDE_CONSTANT = 0.035
+
 
 def getDirectionOnKline(ma1, ma2):
     if ma1 > ma2:
@@ -13,21 +15,14 @@ def getDirectionOnKline(ma1, ma2):
         return None
 
 
-def buildDirectionOnKlines(klines):
+def buildBaseDirectionOnKlines(klines):
     ma_a0 = MA(klines, MALevel.A0.value)
     ma_a1 = MA(klines, MALevel.A1.value)
-    ma_a2 = MA(klines, MALevel.A2.value)
-
-    direction_a0 = [
+    baseKlineDirections = [
         getDirectionOnKline(ma_a0.iloc[i]["ma"], ma_a1.iloc[i]["ma"])
         for i in range(len(ma_a0))
     ]
-    direction_a1 = [
-        getDirectionOnKline(ma_a1.iloc[i]["ma"], ma_a2.iloc[i]["ma"])
-        for i in range(len(ma_a1))
-    ]
-
-    return direction_a0, direction_a1
+    return baseKlineDirections
 
 
 def getPenMaxMinPrice(
@@ -58,6 +53,14 @@ def getPenMaxMinPrice(
         raise ValueError("direct的值不可能为0，请检查输入数据")
 
 
+def judgeIsLess4Kline(lastPriceObj: SegmentPoint, curPriceObj: SegmentPoint) -> bool:
+    startIdx = lastPriceObj.id
+    endIdx = curPriceObj.id
+    # 对于大幅度暴涨暴跌特殊处理
+    priceAmplitude = abs((curPriceObj.price - lastPriceObj.price) / lastPriceObj.price)
+    return endIdx - startIdx < 4 and priceAmplitude < PRICE_AMPLITUDE_CONSTANT
+
+
 def buildSingleSegments(klines, klineDirections) -> list[SegmentPoint]:
     penDirect = None
     # 笔判断条件切换的点位
@@ -82,6 +85,12 @@ def buildSingleSegments(klines, klineDirections) -> list[SegmentPoint]:
             # 开始的那天不算，避免日期重叠
             startIdx = lastPriceObj.id + 1
             priceObj = getPenMaxMinPrice(klines, startIdx, endIdx, direct)
+            # 对相邻线段，如果小于4根K线，则删除
+            isLess4Kline = judgeIsLess4Kline(lastPriceObj, priceObj)
+            if isLess4Kline:
+                segmentPointList.pop()
+                continue
+            # 添加新的线段
             segmentPointList.append(priceObj)
         if i == len(switchList) - 1:
             lastPriceObj = segmentPointList[len(segmentPointList) - 1]
@@ -97,14 +106,19 @@ def buildSingleSegments(klines, klineDirections) -> list[SegmentPoint]:
     return segmentPointList
 
 
+def buildRecursionSegments(baseSegments: list[SegmentPoint]) -> list[SegmentPoint]:
+    """
+    通过基础线段，递归构建高一级别线段
+    """
+    return []
+
+
 def serializeSegments(segments: list[SegmentPoint]):
     return [segmentPoint.toDict() for segmentPoint in segments]
 
 
 def buildAllSegments(klines):
-    klineDirectionsA0, klineDirectionsA1 = buildDirectionOnKlines(klines)
-    segmentsA0 = buildSingleSegments(klines, klineDirectionsA0)
-    serializedSegmentsA0 = serializeSegments(segmentsA0)
-    segmentsA1 = buildSingleSegments(klines, klineDirectionsA1)
-    serializedSegmentsA1 = serializeSegments(segmentsA1)
-    return serializedSegmentsA0, serializedSegmentsA1
+    baseKlineDirections = buildBaseDirectionOnKlines(klines)
+    baseSegments = buildSingleSegments(klines, baseKlineDirections)
+    serializedSegmentsA0 = serializeSegments(baseSegments)
+    return serializedSegmentsA0

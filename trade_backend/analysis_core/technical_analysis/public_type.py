@@ -2,6 +2,14 @@ from trade_backend.enum import Direction, FenxingType
 
 
 class Fenxing:
+    """
+    Attributes:
+        id (int): K线id
+        time (int): K线时间
+        type (str): 分型类型
+        price (float): K线顶底价格。顶分型时候为最高价，底分型时候为最低价
+    """
+
     def __init__(self, id: int, time: int, type: str, price: float):
         self.id = id
         self.time = time
@@ -39,6 +47,15 @@ class Segment:
 
 
 class SegmentPoint:
+    """
+    线段端点
+    Attributes:
+        id (int): K线id
+        type (FenxingType): 分型类型，可以为TOP或BOTTOM
+        price (float): K线顶底价格。顶分型时候为最高价，底分型时候为最低价
+        datetime (int): K线时间
+    """
+
     def __init__(
         self,
         id: int,
